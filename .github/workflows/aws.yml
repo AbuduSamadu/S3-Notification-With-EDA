@@ -23,6 +23,14 @@ jobs:
           distribution: 'adopt'
           java-version: '21'
 
+      - name: verify pom.xml
+        run: |
+          echo "Current directory: $(pwd)"
+          ls -R
+
+      - name: Build with Maven
+        run: mvn clean install
+
       - name: Setup SAM CLI
         uses: aws-actions/setup-sam@v2
 
