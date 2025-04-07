@@ -20,16 +20,9 @@ jobs:
       - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
-          distribution: 'adopt'
           java-version: '21'
-
-      - name: verify pom.xml
-        run: |
-          echo "Current directory: $(pwd)"
-          ls -R
-
-      - name: Build with Maven
-        run: mvn clean install
+          distribution: 'temurin'
+          cache: maven
 
       - name: Setup SAM CLI
         uses: aws-actions/setup-sam@v2
@@ -40,6 +33,10 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
+
+      - name: Build with Maven
+        run: mvn -B package -DskipTests --file pom.xml
+
 
       - name: Build application
         run: sam build
