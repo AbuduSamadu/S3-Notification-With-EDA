@@ -1,0 +1,94 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  S3 Event-Driven Architecture with Lambda and SNS
+
+# Parameters for environment-specific configurations
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - prod
+    Description: Environment name for resource tagging and naming
+
+  EmailSubscriptionName:
+    Type: String
+    Default: abudusamed@gmail.com
+    Description: Email address to subscribe to the SNS topic
+
+Resources:
+  # S3 Bucket for file uploads
+  UploadBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'file-notification-bucket-${Environment}-${AWS::AccountId}'
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: 's3:ObjectCreated:*'
+            Function: !GetAtt S3NotificationFunction.Arn
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+
+  # Lambda permission to allow S3 to invoke the function
+  S3InvokeLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref S3NotificationFunction
+      Principal: s3.amazonaws.com
+      SourceAccount: !Ref AWS::AccountId
+      SourceArn: !GetAtt UploadBucket.Arn
+
+  # SNS Topic for notifications
+  NotificationTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub 'file-upload-notification-${Environment}'
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+
+  # SNS Subscription for email
+  EmailSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Protocol: email
+      Endpoint: !Ref EmailSubscriptionName
+      TopicArn: !Ref NotificationTopic
+
+  # Lambda Function that processes S3 events and publishes to SNS
+  S3NotificationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3-notification-function/
+      Handler: com.example.s3notification.S3EventHandler::handleRequest
+      Runtime: java11
+      MemorySize: 512
+      Timeout: 30
+      Environment:
+        Variables:
+          SNS_TOPIC_ARN: !Ref NotificationTopic
+          ENVIRONMENT: !Ref Environment
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref UploadBucket
+        - SNSPublishMessagePolicy:
+            TopicName: !GetAtt NotificationTopic.TopicName
+      Tags:
+        Environment: !Ref Environment
+
+Outputs:
+  UploadBucketName:
+    Description: "Name of the S3 bucket for file uploads"
+    Value: !Ref UploadBucket
+
+  NotificationTopicArn:
+    Description: "ARN of the SNS topic for notifications"
+    Value: !Ref NotificationTopic
+
+  LambdaFunctionArn:
+    Description: "ARN of the Lambda function"
+    Value: !GetAtt S3NotificationFunction.Arn
