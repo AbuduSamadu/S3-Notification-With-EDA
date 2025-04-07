@@ -15,7 +15,6 @@ Parameters:
 
   EmailSubscriptionName:
     Type: String
-    Default: abudusamed@gmail.com
     Description: Email address to subscribe to the SNS topic
 
 Resources:
@@ -64,8 +63,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: s3-notification-function/
-      Handler: com.example.s3notification.S3EventHandler::handleRequest
-      Runtime: java11
+      Handler: org.example.S3EventHandler::handleRequest
+      Runtime: java21
+      Architectures:
+        - x86_64
       MemorySize: 512
       Timeout: 30
       Environment:
