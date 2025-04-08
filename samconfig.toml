@@ -8,7 +8,7 @@ s3_prefix = "s3-notification-app"
 region = "eu-central-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
-parameter_overrides = "Environment=\"dev\" EmailSubscription=\"abudusamed@gmail.com\""
+parameter_overrides = "Environment=\"prod\" EmailSubscription=\"abudusamed@gmail.com\""
 image_repositories = []
 
 [dev]
