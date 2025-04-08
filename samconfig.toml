@@ -1,36 +1,34 @@
+# More information about the configuration file can be found here:
+# https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-config.html
 version = 0.1
-[default]
-[default.deploy]
+
+[default.global.parameters]
+stack_name = "SNSNotification"
+
+[default.build.parameters]
+cached = true
+parallel = true
+
+[default.validate.parameters]
+lint = true
+
 [default.deploy.parameters]
-stack_name = "s3-notification-app"
-s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-"
-s3_prefix = "s3-notification-app"
-region = "eu-central-1"
-confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
-parameter_overrides = "Environment=\"prod\" EmailSubscription=\"abudusamed@gmail.com\""
+confirm_changeset = true
+resolve_s3 = true
+s3_prefix = "SNSNotification"
+region = "eu-central-1"
+parameter_overrides = "Environment=\"dev\" EmailAddress=\"abudusamed@gmail.com\""
 image_repositories = []
 
-[dev]
-[dev.deploy]
-[dev.deploy.parameters]
-stack_name = "s3-notification-dev"
-s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-"
-s3_prefix = "s3-notification-dev"
-region = "eu-central-1"
-confirm_changeset = true
-capabilities = "CAPABILITY_IAM"
-parameter_overrides = "Environment=\"dev\" EmailSubscription=\"dev-abudusamed@gmail.com\""
-image_repositories = []
+[default.package.parameters]
+resolve_s3 = true
 
-[prod]
-[prod.deploy]
-[prod.deploy.parameters]
-stack_name = "s3-notification-prod"
-s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-"
-s3_prefix = "s3-notification-prod"
-region = "eu-central-1"
-confirm_changeset = true
-capabilities = "CAPABILITY_IAM"
-parameter_overrides = "Environment=\"prod\" EmailSubscription=\"prod-abudusamed@gmail.com\""
-image_repositories = []
+[default.sync.parameters]
+watch = true
+
+[default.local_start_api.parameters]
+warm_containers = "EAGER"
+
+[default.local_start_lambda.parameters]
+warm_containers = "EAGER"
