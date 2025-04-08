@@ -19,32 +19,6 @@ Parameters:
     Description: Email address to subscribe to the SNS topic
 
 Resources:
-  # S3 Bucket for file uploads - without notification configuration
-  UploadBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Sub 'file-notification-bucket-${Environment}-${AWS::AccountId}'
-      Tags:
-        - Key: Environment
-          Value: !Ref Environment
-
-  # SNS Topic for notifications
-  NotificationTopic:
-    Type: AWS::SNS::Topic
-    Properties:
-      TopicName: !Sub 'file-upload-notification-${Environment}'
-      Tags:
-        - Key: Environment
-          Value: !Ref Environment
-
-  # SNS Subscription for email
-  EmailSubscription:
-    Type: AWS::SNS::Subscription
-    Properties:
-      Protocol: email
-      Endpoint: !Ref EmailSubscriptionName
-      TopicArn: !Ref NotificationTopic
-
   # Lambda Function that processes S3 events and publishes to SNS
   S3NotificationFunction:
     Type: AWS::Serverless::Function
@@ -66,6 +40,23 @@ Resources:
       Tags:
         Environment: !Ref Environment
 
+  # SNS Topic for notifications
+  NotificationTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub 'file-upload-notification-${Environment}'
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+
+  # SNS Subscription for email
+  EmailSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Protocol: email
+      Endpoint: !Ref EmailSubscriptionName
+      TopicArn: !Ref NotificationTopic
+
   # Lambda permission to allow S3 to invoke the function
   S3InvokeLambdaPermission:
     Type: AWS::Lambda::Permission
@@ -76,15 +67,17 @@ Resources:
       SourceAccount: !Ref AWS::AccountId
       SourceArn: !GetAtt UploadBucket.Arn
 
-  # S3 Bucket Notification Configuration as a separate resource
-  BucketNotification:
-    Type: AWS::S3::BucketNotification
+
+  # S3 Bucket for file uploads - without notification configuration
+  UploadBucket:
+    Type: AWS::S3::Bucket
     DependsOn: S3InvokeLambdaPermission
     Properties:
-      Bucket: !Ref UploadBucket
-      LambdaConfigurations:
-        - Event: 's3:ObjectCreated:*'
-          Function: !GetAtt S3NotificationFunction.Arn
+      BucketName: !Sub 'file-notification-bucket-${Environment}-${AWS::AccountId}'
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: 's3:ObjectCreated:*'
+            Function: !GetAtt S3NotificationFunction.Arn
 
 Outputs:
   UploadBucketName:
