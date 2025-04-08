@@ -24,7 +24,7 @@ Resources:
     Properties:
       FunctionName: !Sub file-upload-processor-${Environment}
       CodeUri: HelloWorldFunction/
-      Handler: s3notification.S3EventHandler::RequestHandler
+      Handler: s3notification.S3EventHandler::handleRequest
       Runtime: java21
       MemorySize: 512
       Timeout: 30
