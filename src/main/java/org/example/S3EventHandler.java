@@ -128,4 +128,5 @@ public class S3EventHandler implements RequestHandler<S3Event, String> {
             throw e;
         }
     }
+
 }
