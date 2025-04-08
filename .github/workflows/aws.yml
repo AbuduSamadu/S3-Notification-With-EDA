@@ -43,53 +43,24 @@ jobs:
           cd ..
           sam build --template-file template.yaml
 
-      - name: Determine environment
-        id: determine-env
+      - name: Deploy to Development
+        if: github.ref == 'refs/heads/develop'
         run: |
-          if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
-            echo "env=prod" >> $GITHUB_OUTPUT
-          else
-            echo "env=dev" >> $GITHUB_OUTPUT
-          fi
-
-      # Initial deployment to create the stack with deployment bucket
-      - name: Initial SAM deploy
-        id: initial-deploy
-        continue-on-error: true
-        run: |
-          environment="${{ steps.determine-env.outputs.env }}"
-          email_subscription="${{ secrets.EMAIL_SUBSCRIPTION }}"
-          
           sam deploy \
-            --stack-name s3-notification-$environment \
-            --template-file template.yaml \
+          --stack-name s3-notification-app \
             --parameter-overrides "Environment=$environment EmailSubscription=$email_subscription" \
             --capabilities CAPABILITY_IAM \
-            --no-fail-on-empty-changeset
+          --no-fail-on-empty-changeset \
+          --no-confirm-changeset \
+          --region eu-central-1
 
-      # Get the deployment bucket name from CloudFormation output
-      - name: Get deployment bucket
-        id: get-bucket
+      - name: Deploy to Production
+        if: github.ref == 'refs/heads/main'
         run: |
-          environment="${{ steps.determine-env.outputs.env }}"
-          deployment_bucket=$(aws cloudformation describe-stacks --stack-name s3-notification-$environment --query "Stacks[0].Outputs[?OutputKey=='DeploymentBucketName'].OutputValue" --output text)
-          
-          if [ -z "$deployment_bucket" ]; then
-            echo "Could not retrieve deployment bucket name from stack outputs."
-            exit 1
-          fi
-          
-          echo "DEPLOYMENT_BUCKET=$deployment_bucket" >> $GITHUB_ENV
-          echo "Deployment bucket: $deployment_bucket"
-
-      - name: Deploy SAM application
-        run: |
-          email_subscription="${{ secrets.EMAIL_SUBSCRIPTION }}"
-          environment="${{ steps.determine-env.outputs.env }}"
-          
           sam deploy \
-            --stack-name s3-notification-$environment \
-            --template-file template.yaml \
+            --stack-name s3-notification-app\
             --parameter-overrides "Environment=$environment EmailSubscription=$email_subscription" \
             --capabilities CAPABILITY_IAM \
-            --no-fail-on-empty-changeset
+            --no-fail-on-empty-changeset \
+            --no-confirm-changeset \
+            --region eu-central-1
