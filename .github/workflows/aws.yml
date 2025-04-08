@@ -36,12 +36,12 @@ jobs:
       - name: Setup SAM CLI
         uses: aws-actions/setup-sam@v2
 
-      - name: Build with Maven
+      - name: Build with Maven and Sam
         run: |
           cd notificationFunction
           mvn -B package -DskipTests --file pom.xml
           cd ..
-          sam build
+          sam build --template-file template.yaml
 
       - name: Determine environment
         id: determine-env
@@ -62,6 +62,7 @@ jobs:
           
           sam deploy \
             --stack-name s3-notification-$environment \
+            --template-file template.yaml \
             --parameter-overrides "Environment=$environment EmailSubscription=$email_subscription" \
             --capabilities CAPABILITY_IAM \
             --no-fail-on-empty-changeset
@@ -88,6 +89,7 @@ jobs:
           
           sam deploy \
             --stack-name s3-notification-$environment \
+            --template-file template.yaml \
             --parameter-overrides "Environment=$environment EmailSubscription=$email_subscription" \
             --capabilities CAPABILITY_IAM \
             --no-fail-on-empty-changeset
