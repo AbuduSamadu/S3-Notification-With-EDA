@@ -75,7 +75,7 @@ Resources:
   S3NotificationFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./
+      CodeUri: notificationFunction/
       Handler: org.example.S3EventHandler::handleRequest
       Runtime: java21
       MemorySize: 512
