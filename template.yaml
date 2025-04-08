@@ -7,7 +7,7 @@ Description: >
 Parameters:
   Environment:
     Type: String
-    Default: dev
+    Default: prod
     AllowedValues:
       - dev
       - prod
@@ -18,6 +18,19 @@ Parameters:
     Description: Email address to subscribe to the SNS topic
 
 Resources:
+
+#Deployment Bucket for sam Artifacts
+  DeploymentBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Sub 'sam-deployment-${Environment}-${AWS::AccountId}'
+      VersioningConfiguration:
+        Status: Enabled
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+
   # S3 Bucket for file uploads
   UploadBucket:
     Type: AWS::S3::Bucket
@@ -65,8 +78,6 @@ Resources:
       CodeUri: ./
       Handler: org.example.S3EventHandler::handleRequest
       Runtime: java21
-      Architectures:
-        - x86_64
       MemorySize: 512
       Timeout: 30
       Environment:
@@ -82,6 +93,10 @@ Resources:
         Environment: !Ref Environment
 
 Outputs:
+  DeploymentBucketName:
+    Description:  "Name of the S3 bucket used for deployment artifacts"
+    Value: !Ref DeploymentBucket
+
   UploadBucketName:
     Description: "Name of the S3 bucket for file uploads"
     Value: !Ref UploadBucket
