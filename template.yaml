@@ -15,6 +15,7 @@ Parameters:
 
   EmailSubscriptionName:
     Type: String
+    Default: abudusamed@gmail.com
     Description: Email address to subscribe to the SNS topic
 
 Resources:
