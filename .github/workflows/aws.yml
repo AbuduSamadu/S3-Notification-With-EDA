@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - develop
   pull_request:
     branches:
       - main
@@ -21,7 +22,6 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: maven
 
       - name: Setup SAM CLI
         uses: aws-actions/setup-sam@v2
@@ -33,34 +33,49 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
 
-      - name: Setup SAM CLI
-        uses: aws-actions/setup-sam@v2
-
-      - name: Build with Maven and Sam
+      - name: Build and package Lambda function
         run: |
           cd notificationFunction
-          mvn -B package -DskipTests --file pom.xml
+          mvn clean package
           cd ..
-          sam build --template-file template.yaml
 
-      - name: Deploy to Development
-        if: github.ref == 'refs/heads/develop'
+      - name: SAM Build
+        run: sam build
+
+      - name: Determine environment
+        id: determine-env
         run: |
+          if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
+            echo "env=prod" >> $GITHUB_OUTPUT
+          else
+            echo "env=dev" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create S3 bucket for deployment if it doesn't exist
+        run: |
+          environment="${{ steps.determine-env.outputs.env }}"
+          bucket_name="sam-deployment-bucket-$environment-${{ secrets.AWS_REGION }}-${{ github.repository_owner }}"
+          bucket_name=$(echo "$bucket_name" | tr '[:upper:]' '[:lower:]' | tr '/' '-')
+          
+          # Check if bucket exists
+          if ! aws s3api head-bucket --bucket "$bucket_name" 2>/dev/null; then
+            echo "Creating deployment bucket: $bucket_name"
+            aws s3 mb "s3://$bucket_name" --region ${{ secrets.AWS_REGION }}
+          else
+            echo "Deployment bucket already exists: $bucket_name"
+          fi
+          
+          # Export bucket name for later use
+          echo "DEPLOYMENT_BUCKET=$bucket_name" >> $GITHUB_ENV
+
+      - name: Deploy SAM application
+        run: |
+          email_subscription="${{ secrets.EMAIL_SUBSCRIPTION }}"
+          environment="${{ steps.determine-env.outputs.env }}"
+          
           sam deploy \
-          --stack-name s3-notification-app \
+            --stack-name s3-notification-$environment \
+            --s3-bucket ${{ env.DEPLOYMENT_BUCKET }} \
             --parameter-overrides "Environment=$environment EmailSubscription=$email_subscription" \
             --capabilities CAPABILITY_IAM \
-          --no-fail-on-empty-changeset \
-          --no-confirm-changeset \
-          --region eu-central-1
-
-      - name: Deploy to Production
-        if: github.ref == 'refs/heads/main'
-        run: |
-          sam deploy \
-            --stack-name s3-notification-app\
-            --parameter-overrides "Environment=$environment EmailSubscription=$email_subscription" \
-            --capabilities CAPABILITY_IAM \
-            --no-fail-on-empty-changeset \
-            --no-confirm-changeset \
-            --region eu-central-1
+            --no-fail-on-empty-changeset
