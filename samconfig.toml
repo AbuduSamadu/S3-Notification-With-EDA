@@ -4,6 +4,7 @@ version = 0.1
 
 [default.global.parameters]
 stack_name = "SNSNotification"
+region = "eu-central-1"
 
 [default.build.parameters]
 cached = true
@@ -16,9 +17,9 @@ lint = true
 capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
 resolve_s3 = true
-s3_prefix = "SNSNotification"
+s3_prefix = "NotificationApp"
 region = "eu-central-1"
-parameter_overrides = "Environment=\"dev\" EmailAddress=\"abudusamed@gmail.com\""
+parameter_overrides = "Environment=\"prod\" EmailAddress=\"abudusamed@gmail.com\""
 image_repositories = []
 
 [default.package.parameters]
@@ -32,3 +33,20 @@ warm_containers = "EAGER"
 
 [default.local_start_lambda.parameters]
 warm_containers = "EAGER"
+
+
+[dev]
+[dev.deploy.parameters]
+stack_name = "SNSNotificationdev"
+s3_prefix = "SNSNotificationdev"
+parameter_overrides = [
+    "Environment=dev"
+]
+
+[prod]
+[prod.deploy.parameters]
+stack_name = "SNSNotificationprod"
+s3_prefix = "SNSNotificationdev"
+parameter_overrides = [
+    "Environment=prod"
+]
