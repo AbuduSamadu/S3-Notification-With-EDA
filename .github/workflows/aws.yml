@@ -45,6 +45,7 @@ jobs:
             echo "env=prod" >> $GITHUB_OUTPUT
           else
             echo "env=dev" >> $GITHUB_OUTPUT
+          fi
 
       - name: Deploy SAM application
         run: |
