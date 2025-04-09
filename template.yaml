@@ -6,7 +6,7 @@ Description: S3 Event-Driven Architecture with Lambda & SNS
 Parameters:
   Environment:
     Type: String
-    Default: dev
+    Default: prod
     AllowedValues:
       - dev
       - prod
