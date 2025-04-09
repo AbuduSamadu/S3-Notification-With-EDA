@@ -1,0 +1,6 @@
+{
+  "Parameters": {
+    "Environment": "dev",
+    "EmailSubscription": "dev-team@example.com"
+  }
+}

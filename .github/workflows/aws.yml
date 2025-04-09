@@ -4,15 +4,10 @@ on:
   push:
     branches:
       - main
+      - feat/workflow
     paths:
       - 'template.yaml'
       - '.github/workflows/aws.yml'
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: "development requirement (dev or prod)"
-        required: true
-        default: dev
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -50,7 +45,6 @@ jobs:
             echo "env=prod" >> $GITHUB_OUTPUT
           else
             echo "env=dev" >> $GITHUB_OUTPUT
-          fi
 
       - name: Deploy SAM application
         run: |
