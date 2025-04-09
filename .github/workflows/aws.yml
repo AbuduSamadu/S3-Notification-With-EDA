@@ -29,7 +29,6 @@ jobs:
       - name: Setup SAM CLI
         run: |
           pip install aws-sam-cli
-          
 
       - name: Build Maven and Sam
         run: |
