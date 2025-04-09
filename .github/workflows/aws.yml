@@ -55,5 +55,4 @@ jobs:
             --capabilities CAPABILITY_IAM \
             --no-fail-on-empty-changeset \
             --no-confirm-changeset \
-            --template-file template.yaml \
             --region eu-central-1
