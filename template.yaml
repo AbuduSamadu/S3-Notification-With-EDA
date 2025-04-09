@@ -6,7 +6,7 @@ Description: S3 Event-Driven Architecture with Lambda & SNS
 Parameters:
   Environment:
     Type: String
-    Default: prod
+    Default: dev
     AllowedValues:
       - dev
       - prod
@@ -22,7 +22,7 @@ Resources:
   FileUploadFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub file-upload-processor-${Environment}
+      FunctionName: !Sub file-upload-processors-${Environment}
       CodeUri: HelloWorldFunction/
       Handler: s3notification.S3EventHandler::handleRequest
       Runtime: java21
@@ -42,7 +42,7 @@ Resources:
   NotificationTopic:
     Type: AWS::SNS::Topic
     Properties:
-      TopicName: !Sub file-upload-notifications-${Environment}
+      TopicName: !Sub file-upload-notification-${Environment}
       DisplayName: !Sub "File Upload Notifications - ${Environment}"
 
   # SNS Subscription for email

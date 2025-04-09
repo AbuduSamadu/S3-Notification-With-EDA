@@ -1,9 +1,10 @@
+
 # More information about the configuration file can be found here:
 # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-config.html
 version = 0.1
 
 [default.global.parameters]
-stack_name = "SNSNotification"
+stack_name = "s3-sns-event"
 region = "eu-central-1"
 
 [default.build.parameters]
@@ -17,9 +18,8 @@ lint = true
 capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
 resolve_s3 = true
-s3_prefix = "NotificationApp"
-region = "eu-central-1"
-parameter_overrides = "Environment=\"prod\" EmailAddress=\"abudusamed@gmail.com\""
+s3_prefix = "s3-sns-event"
+parameter_overrides = "Environment=\"dev\" EmailAddress=\"abudusamed@gmail.com\""
 image_repositories = []
 
 [default.package.parameters]
@@ -34,19 +34,18 @@ warm_containers = "EAGER"
 [default.local_start_lambda.parameters]
 warm_containers = "EAGER"
 
-
 [dev]
 [dev.deploy.parameters]
-stack_name = "SNSNotificationdev"
-s3_prefix = "SNSNotificationdev"
+stack_name = "s3eventprocessordev"
+s3_prefix = "s3eventprocessordev"
 parameter_overrides = [
     "Environment=dev"
 ]
 
 [prod]
 [prod.deploy.parameters]
-stack_name = "SNSNotificationprod"
-s3_prefix = "SNSNotificationdev"
+stack_name = "s3eventprocessorprod"
+s3_prefix = "s3eventprocessorprod"
 parameter_overrides = [
     "Environment=prod"
 ]
