@@ -27,8 +27,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Setup SAM CLI
-        run: |
-          pip install aws-sam-cli
+        uses: aws-actions/setup-sam@v2
 
       - name: Build Maven and Sam
         run: |

@@ -22,7 +22,7 @@ Resources:
   FileUploadFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub file-upload-processor-${Environment}
+      FunctionName: !Sub file-upload-processors-${Environment}
       CodeUri: HelloWorldFunction/
       Handler: s3notification.S3EventHandler::handleRequest
       Runtime: java21
@@ -30,16 +30,16 @@ Resources:
       Timeout: 30
       Environment:
         Variables:
-          SNS_TOPIC_ARN: !Ref NotificationTopic
+          SNS_TOPIC_ARN: !Ref NotificationsTopic
           ENVIRONMENT: !Ref Environment
       Policies:
         - SNSPublishMessagePolicy:
-            TopicName: !GetAtt NotificationTopic.TopicName
+            TopicName: !GetAtt NotificationsTopic.TopicName
         - S3ReadPolicy:
             BucketName: !Sub s3-upload-bucket-${Environment}-${AWS::AccountId}
 
   # SNS Topic for notifications
-  NotificationTopic:
+  NotificationsTopic:
     Type: AWS::SNS::Topic
     Properties:
       TopicName: !Sub file-upload-notifications-${Environment}
@@ -51,7 +51,7 @@ Resources:
     Properties:
       Protocol: email
       Endpoint: !Ref EmailAddress
-      TopicArn: !Ref NotificationTopic
+      TopicArn: !Ref NotificationsTopic
 
   # Lambda permission to allow S3 to invoke it
   FileUploadPermission:
@@ -68,7 +68,7 @@ Resources:
     Type: AWS::S3::Bucket
     DependsOn: FileUploadPermission
     Properties:
-      BucketName: !Sub s3-upload-bucket-${Environment}-${AWS::AccountId}
+      BucketName: !Sub s3-upload-buckets-${Environment}-${AWS::AccountId}
       NotificationConfiguration:
         LambdaConfigurations:
           - Event: s3:ObjectCreated:*
@@ -83,7 +83,7 @@ Outputs:
 
   NotificationTopicArn:
     Description: ARN of the SNS topic for notifications
-    Value: !Ref NotificationTopic
+    Value: !Ref NotificationsTopic
 
   LambdaFunctionName:
     Description: Name of the Lambda function processing uploads
