@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'template.yaml'
+      - '.github/workflows/aws.yml'
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -32,7 +35,7 @@ jobs:
           cd HelloWorldFunction
           mvn -B package -DskipTests --file pom.xml
           cd ..
-          sam build 
+          sam build --template template.yaml
 
       - name: Determine environment
         id: determine-env
@@ -54,4 +57,5 @@ jobs:
             --capabilities CAPABILITY_IAM \
             --no-fail-on-empty-changeset \
             --no-confirm-changeset \
+            --template-file template.yaml \
             --region eu-central-1
