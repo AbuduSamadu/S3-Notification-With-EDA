@@ -52,7 +52,7 @@ jobs:
           environment="${{ steps.determine-env.outputs.env }}"
           
           sam deploy \
-            --stack-name s3-notification-$environment \
+            --stack-name s3-notifications-$environment \
             --parameter-overrides "Environment=$environment EmailAddress=$email_subscription" \
             --capabilities CAPABILITY_IAM \
             --no-fail-on-empty-changeset \
