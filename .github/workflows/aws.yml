@@ -18,8 +18,6 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Setup SAM CLI
-        uses: aws-actions/setup-sam@v2
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -27,6 +25,11 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Setup SAM CLI
+        run: |
+          pip install aws-sam-cli
+          
 
       - name: Build Maven and Sam
         run: |
