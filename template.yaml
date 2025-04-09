@@ -53,14 +53,6 @@ Resources:
       Endpoint: !Ref EmailAddress
       TopicArn: !Ref NotificationTopic
 
-
-  EmailSubscription:
-    Type: AWS::SNS::Subscription
-    Properties:
-      Protocol: email
-      Endpoint: willianalbin25@otpku.com
-      TopicArn: !Ref NotificationTopic
-
   # Lambda permission to allow S3 to invoke it
   FileUploadPermission:
     Type: AWS::Lambda::Permission
