@@ -22,8 +22,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID}}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
           aws-region: eu-central-1
 
       - name: Setup SAM CLI
@@ -51,7 +51,7 @@ jobs:
           environment="${{ steps.determine-env.outputs.env }}"
           
           sam deploy \
-            --stack-name s3-notifications-$environment \
+            --stack-name s3-Notification-$environment \
             --parameter-overrides "Environment=$environment EmailAddress=$email_subscription" \
             --capabilities CAPABILITY_IAM \
             --no-fail-on-empty-changeset \

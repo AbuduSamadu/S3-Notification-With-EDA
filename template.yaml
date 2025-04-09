@@ -30,19 +30,19 @@ Resources:
       Timeout: 30
       Environment:
         Variables:
-          SNS_TOPIC_ARN: !Ref NotificationsTopic
+          SNS_TOPIC_ARN: !Ref NotificationTopic
           ENVIRONMENT: !Ref Environment
       Policies:
         - SNSPublishMessagePolicy:
-            TopicName: !GetAtt NotificationsTopic.TopicName
+            TopicName: !GetAtt NotificationTopic.TopicName
         - S3ReadPolicy:
             BucketName: !Sub s3-upload-bucket-${Environment}-${AWS::AccountId}
 
   # SNS Topic for notifications
-  NotificationsTopic:
+  NotificationTopic:
     Type: AWS::SNS::Topic
     Properties:
-      TopicName: !Sub file-upload-notifications-${Environment}
+      TopicName: !Sub file-upload-notification-${Environment}
       DisplayName: !Sub "File Upload Notifications - ${Environment}"
 
   # SNS Subscription for email
@@ -51,7 +51,7 @@ Resources:
     Properties:
       Protocol: email
       Endpoint: !Ref EmailAddress
-      TopicArn: !Ref NotificationsTopic
+      TopicArn: !Ref NotificationTopic
 
   # Lambda permission to allow S3 to invoke it
   FileUploadPermission:
@@ -68,7 +68,7 @@ Resources:
     Type: AWS::S3::Bucket
     DependsOn: FileUploadPermission
     Properties:
-      BucketName: !Sub s3-upload-buckets-${Environment}-${AWS::AccountId}
+      BucketName: !Sub s3-upload-bucket-${Environment}-${AWS::AccountId}
       NotificationConfiguration:
         LambdaConfigurations:
           - Event: s3:ObjectCreated:*
@@ -83,7 +83,7 @@ Outputs:
 
   NotificationTopicArn:
     Description: ARN of the SNS topic for notifications
-    Value: !Ref NotificationsTopic
+    Value: !Ref NotificationTopic
 
   LambdaFunctionName:
     Description: Name of the Lambda function processing uploads
